@@ -1,5 +1,7 @@
 # Noble West Social Review Tool — User Instructions
 
+**Live Dashboard:** [https://noble-west-social-review-e1b7.vercel.app](https://noble-west-social-review-e1b7.vercel.app)
+
 Welcome to the Noble West Social Review Tool! This platform is designed to seamlessly manage social media calendars and collaborate directly with clients, keeping internal discussions private while eliminating the need for bulky spreadsheets.
 
 Here is exactly how to manage your daily workflow:
