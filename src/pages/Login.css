@@ -1,0 +1,107 @@
+.login-root {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-forester);
+  position: relative;
+  overflow: hidden;
+}
+
+.login-bg {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 60% 60% at 80% 20%, rgba(145, 121, 65, 0.18) 0%, transparent 70%),
+    radial-gradient(ellipse 50% 50% at 20% 80%, rgba(0, 0, 0, 0.2) 0%, transparent 70%);
+}
+
+.login-card {
+  position: relative;
+  z-index: 1;
+  background: #fff;
+  border-radius: var(--radius-xl);
+  padding: var(--space-10) var(--space-8);
+  width: 100%;
+  max-width: 400px;
+  box-shadow: 0 32px 80px rgba(0, 0, 0, 0.3);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  align-items: center;
+  text-align: center;
+}
+
+.login-logo-wrap {
+  display: flex;
+  justify-content: center;
+}
+
+.login-logo {
+  height: 44px;
+  object-fit: contain;
+}
+
+.login-heading h1 {
+  font-family: var(--font-display);
+  font-size: var(--text-3xl);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-forester);
+  font-weight: 400;
+  margin: 0 0 var(--space-2);
+}
+
+.login-heading p {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+  line-height: 1.55;
+  margin: 0;
+}
+
+.login-error {
+  width: 100%;
+  background: var(--status-revision-bg);
+  color: var(--status-revision);
+  border: 1px solid var(--status-revision);
+  border-radius: var(--radius-sm);
+  padding: var(--space-3) var(--space-4);
+  font-size: var(--text-sm);
+}
+
+.btn-google-signin {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-5);
+  background: #fff;
+  border: 1.5px solid #dadce0;
+  border-radius: var(--radius-md);
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: #3c4043;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+}
+
+.btn-google-signin:hover:not(:disabled) {
+  background: #f8f9fa;
+  border-color: #bbb;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+}
+
+.btn-google-signin:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.login-note {
+  font-size: var(--text-xs);
+  color: var(--color-text-placeholder);
+  line-height: 1.5;
+  margin: 0;
+}
