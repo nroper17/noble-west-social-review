@@ -35,8 +35,6 @@ export default function AssetManager({ assets, videoUrl, isTeam, postId, onUpdat
     setUploadCount(0)
 
     const newAssets: PostAsset[] = []
-    let hasError = false
-
     for (let i = 0; i < fileArr.length; i++) {
       const file = fileArr[i]
       const ext = file.name.split('.').pop() ?? 'jpg'
@@ -46,7 +44,6 @@ export default function AssetManager({ assets, videoUrl, isTeam, postId, onUpdat
       if (error) {
         console.error('Upload error:', error)
         alert(`Failed to upload ${file.name}: ${error.message}`)
-        hasError = true
       } else {
         const { data: { publicUrl } } = supabase.storage.from('post-assets').getPublicUrl(path)
         const type: 'image' | 'gif' = file.type === 'image/gif' ? 'gif' : 'image'
