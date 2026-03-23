@@ -117,7 +117,19 @@ export default function PostDetailPanel({ post, allPosts, workspaceId, magicLink
       onPostUpdate(data)
       setDirty(false)
 
+      let shouldReloadLog = false
+
       if (post.status !== draft.status) {
+        const newStatusWord = draft.status.replace('_', ' ').replace(/\b\w/g, c => c.toUpperCase())
+        const statusLog = `Status updated to ${newStatusWord}`
+        await supabase.from('post_change_log').insert({
+          post_id: post.id,
+          user_id: profile?.id,
+          user_name: profile?.full_name ?? profile?.email,
+          note: statusLog,
+        })
+        shouldReloadLog = true
+
         if (draft.status === 'needs_revision' || draft.status === 'approved') {
           const newStatus = draft.status.replace('_', ' ').toUpperCase()
           sendNotification(
@@ -130,17 +142,32 @@ export default function PostDetailPanel({ post, allPosts, workspaceId, magicLink
           )
         }
       }
-    }
 
-    if (changeLogNote.trim()) {
-      await supabase.from('post_change_log').insert({
-        post_id: post.id,
-        user_id: profile?.id,
-        user_name: profile?.full_name ?? profile?.email,
-        note: changeLogNote.trim(),
-      })
-      setChangeLogNote('')
-      loadChangeLog()
+      if (post.proposed_date !== draft.proposed_date) {
+        const dateLog = `Publish date changed to ${format(new Date(draft.proposed_date), 'MMM d, yyyy')}`
+        await supabase.from('post_change_log').insert({
+          post_id: post.id,
+          user_id: profile?.id,
+          user_name: profile?.full_name ?? profile?.email,
+          note: dateLog,
+        })
+        shouldReloadLog = true
+      }
+
+      if (changeLogNote.trim()) {
+        await supabase.from('post_change_log').insert({
+          post_id: post.id,
+          user_id: profile?.id,
+          user_name: profile?.full_name ?? profile?.email,
+          note: changeLogNote.trim(),
+        })
+        setChangeLogNote('')
+        shouldReloadLog = true
+      }
+
+      if (shouldReloadLog) {
+        loadChangeLog()
+      }
     }
     setSaving(false)
   }
@@ -214,7 +241,9 @@ export default function PostDetailPanel({ post, allPosts, workspaceId, magicLink
 
           {/* Tabs */}
           <div className="post-panel-tabs">
-            {(['details', 'comments', 'log'] as const).map(tab => (
+            {(['details', 'comments', 'log'] as const)
+              .filter(tab => tab !== 'log' || isTeam)
+              .map(tab => (
               <button
                 key={tab}
                 className={`panel-tab ${activeTab === tab ? 'active' : ''}`}
@@ -341,7 +370,7 @@ export default function PostDetailPanel({ post, allPosts, workspaceId, magicLink
             <CommentThread postId={post.id} isTeam={isTeam} workspaceId={workspaceId} magicLinkToken={magicLinkToken} />
           )}
 
-          {activeTab === 'log' && (
+          {activeTab === 'log' && isTeam && (
             <div className="change-log-list">
               {changeLogs.length === 0 ? (
                 <p className="empty-log">No changes logged yet.</p>

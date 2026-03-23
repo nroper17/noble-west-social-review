@@ -4,8 +4,10 @@ import { supabase } from '../../lib/supabase'
 import type { Workspace, Post } from '../../types'
 import CalendarGrid from '../../components/Calendar/CalendarGrid'
 import CommentThread from '../../components/PostDetail/CommentThread'
+import AssetManager from '../../components/PostDetail/AssetManager'
 import { format, startOfMonth, addMonths, subMonths } from 'date-fns'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { PLATFORM_LABELS, PLATFORM_ICONS } from '../../assets/icons/PlatformIcons'
 import './ClientPortal.css'
 
 export default function ClientPortalPage() {
@@ -116,6 +118,11 @@ export default function ClientPortalPage() {
 
   const selectedPost = selectedPostId ? posts.find(p => p.id === selectedPostId) ?? null : null
 
+  const sortedPosts = [...posts].sort((a, b) => a.proposed_date.localeCompare(b.proposed_date))
+  const currentIndex = selectedPost ? sortedPosts.findIndex(p => p.id === selectedPost.id) : -1
+  const prevPost = currentIndex > 0 ? sortedPosts[currentIndex - 1] : null
+  const nextPost = currentIndex >= 0 && currentIndex < sortedPosts.length - 1 ? sortedPosts[currentIndex + 1] : null
+
   return (
     <div className="client-portal-root">
       {/* Simple client nav */}
@@ -147,7 +154,8 @@ export default function ClientPortalPage() {
       {selectedPost && (
         <>
           <div className="panel-overlay" onClick={() => setSelectedPostId(null)} />
-          <aside className="panel-slide-in client-post-panel">
+          <aside className="panel-slide-in">
+            <div className="client-post-panel">
             <div className="client-panel-header">
               <div>
                 <h2 className="client-panel-title">{selectedPost.title}</h2>
@@ -156,19 +164,58 @@ export default function ClientPortalPage() {
               <button className="btn btn-ghost btn-icon" onClick={() => setSelectedPostId(null)}>✕</button>
             </div>
 
+            {/* Post navigation */}
+            <div className="post-nav-row">
+              <button
+                className="btn btn-ghost btn-sm post-nav-btn"
+                onClick={() => prevPost && setSelectedPostId(prevPost.id)}
+                disabled={!prevPost}
+              >
+                <ChevronLeft size={14} />
+                Previous
+              </button>
+              <span className="post-nav-count">{currentIndex + 1} / {sortedPosts.length}</span>
+              <button
+                className="btn btn-ghost btn-sm post-nav-btn post-nav-next"
+                onClick={() => nextPost && setSelectedPostId(nextPost.id)}
+                disabled={!nextPost}
+              >
+                Next
+                <ChevronRight size={14} />
+              </button>
+            </div>
+
             {/* Status */}
             <div className="client-panel-status">
               <span className={`status-pill ${selectedPost.status}`}>{selectedPost.status.replace('_', ' ')}</span>
             </div>
 
+            {/* Platforms */}
+            {selectedPost.platforms && selectedPost.platforms.length > 0 && (
+              <div className="platform-pill-group client-panel-platforms">
+                {selectedPost.platforms.map(platform => {
+                  const Icon = PLATFORM_ICONS[platform]
+                  return (
+                    <span key={platform} className="platform-pill selected">
+                      {Icon && <Icon size={13} />}
+                      {PLATFORM_LABELS[platform]}
+                    </span>
+                  )
+                })}
+              </div>
+            )}
+
             {/* Asset */}
-            {selectedPost.asset_url && (
+            {(selectedPost.assets?.length > 0 || selectedPost.asset_url) && (
               <div className="client-panel-asset">
-                {selectedPost.asset_type === 'video_link' ? (
-                  <video src={selectedPost.asset_url} controls className="client-video" preload="metadata" />
-                ) : (
-                  <img src={selectedPost.asset_url} alt="Post asset" className="client-asset-image" />
-                )}
+                <AssetManager
+                  assets={selectedPost.assets ?? []}
+                  videoUrl={selectedPost.asset_type === 'video_link' ? selectedPost.asset_url : null}
+                  isTeam={false}
+                  postId={selectedPost.id}
+                  onUpdateAssets={() => {}}
+                  onUpdateVideo={() => {}}
+                />
               </div>
             )}
 
@@ -177,6 +224,14 @@ export default function ClientPortalPage() {
               <div className="client-panel-copy">
                 <p className="form-label">Copy</p>
                 <div className="client-copy-body" dangerouslySetInnerHTML={{ __html: selectedPost.copy }} />
+              </div>
+            )}
+
+            {/* Usage Rights */}
+            {selectedPost.usage_rights && (
+              <div className="client-panel-usage">
+                <p className="form-label">Usage Rights</p>
+                <p className="usage-text">{selectedPost.usage_rights}</p>
               </div>
             )}
 
@@ -207,6 +262,7 @@ export default function ClientPortalPage() {
                 magicLinkToken={workspace!.magic_link_token}
                 clientName={clientName || 'Client'}
               />
+            </div>
             </div>
           </aside>
         </>
