@@ -10,7 +10,7 @@ import { X, Trash2, Save, Lock, MessageCircle, History, ChevronLeft, ChevronRigh
 import { format } from 'date-fns'
 import CommentThread from './CommentThread'
 import AssetManager from './AssetManager'
-import { sendNotification } from '../../lib/notifications'
+import { sendNotification, escapeHtml } from '../../lib/notifications'
 import './PostDetailPanel.css'
 
 const ALL_PLATFORMS: Platform[] = ['instagram', 'facebook', 'linkedin', 'tiktok', 'x', 'pinterest']
@@ -44,6 +44,7 @@ export default function PostDetailPanel({ post, allPosts, workspaceId, magicLink
   const [changeLogs, setChangeLogs] = useState<PostChangeLog[]>([])
   const [activeTab, setActiveTab] = useState<'details' | 'comments' | 'log'>('details')
   const [deleting, setDeleting] = useState(false)
+  const [showDeleteModal, setShowDeleteModal] = useState(false)
 
   // Sorted by date for sequential nav
   const sortedPosts = [...allPosts].sort((a, b) => a.proposed_date.localeCompare(b.proposed_date))
@@ -137,7 +138,7 @@ export default function PostDetailPanel({ post, allPosts, workspaceId, magicLink
             'status_change',
             `Status Updated: ${draft.title}`,
             `<h2>Post Status Update</h2>
-             <p>The status of <strong>"${draft.title}"</strong> was changed to <strong>${newStatus}</strong>.</p>
+             <p>The status of <strong>"${escapeHtml(draft.title)}"</strong> was changed to <strong>${escapeHtml(newStatus)}</strong>.</p>
              <p>Log in to the Noble West Social Review Tool to view.</p>`
           )
         }
@@ -173,9 +174,9 @@ export default function PostDetailPanel({ post, allPosts, workspaceId, magicLink
   }
 
   async function handleDelete() {
-    if (!window.confirm(`Delete "${post.title}"? This cannot be undone.`)) return
     setDeleting(true)
     await supabase.from('posts').delete().eq('id', post.id)
+    setShowDeleteModal(false)
     onPostDelete(post.id)
   }
 
@@ -392,8 +393,8 @@ export default function PostDetailPanel({ post, allPosts, workspaceId, magicLink
         {isTeam && (
           <div className="post-panel-footer">
             {isAdmin && (
-              <button className="btn btn-danger btn-sm" onClick={handleDelete} disabled={deleting}>
-                <Trash2 size={13} /> {deleting ? 'Deleting…' : 'Delete'}
+              <button className="btn btn-danger btn-sm" onClick={() => setShowDeleteModal(true)} disabled={deleting}>
+                <Trash2 size={13} /> Delete
               </button>
             )}
             <button
@@ -404,6 +405,21 @@ export default function PostDetailPanel({ post, allPosts, workspaceId, magicLink
             >
               <Save size={14} /> {saving ? 'Saving…' : 'Save Changes'}
             </button>
+          </div>
+        )}
+        {/* Delete Modal */}
+        {showDeleteModal && (
+          <div className="delete-modal-backdrop" onClick={() => setShowDeleteModal(false)}>
+            <div className="delete-modal" onClick={e => e.stopPropagation()}>
+              <h3>Delete Post</h3>
+              <p>Are you sure you want to delete <strong>"{post.title}"</strong>? This action cannot be undone.</p>
+              <div className="delete-modal-actions">
+                <button className="btn btn-ghost" onClick={() => setShowDeleteModal(false)} disabled={deleting}>Cancel</button>
+                <button className="btn btn-danger" onClick={handleDelete} disabled={deleting}>
+                  {deleting ? 'Deleting…' : 'Delete'}
+                </button>
+              </div>
+            </div>
           </div>
         )}
       </aside>

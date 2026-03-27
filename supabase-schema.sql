@@ -260,3 +260,38 @@ create policy "Public can read post assets" on storage.objects for select to pub
 -- ─── IMPORTANT: First NW Admin ───────────────────────────────────────────────
 -- After your first Google login, run this to make yourself admin:
 -- UPDATE profiles SET role = 'nw_admin' WHERE email = 'your-email@yourdomain.com';
+
+-- ─── Feature Updates (March 2024) ────────────────────────────────────────────
+
+-- Allow Admins to update other profiles (needed to assign admin roles)
+create policy "Admins update all profiles" on profiles for update using (is_nw_admin());
+
+-- Auto-assign new NW users to all active workspaces
+create or replace function handle_new_profile_workspaces()
+returns trigger as $$
+begin
+  insert into workspace_members (workspace_id, user_id)
+  select id, new.id from workspaces where is_archived = false;
+  return new;
+end;
+$$ language plpgsql security definer;
+
+drop trigger if exists on_profile_created_assign_workspaces on profiles;
+create trigger on_profile_created_assign_workspaces
+  after insert on profiles
+  for each row execute procedure handle_new_profile_workspaces();
+
+-- Auto-assign existing NW users to a newly created workspace
+create or replace function handle_new_workspace_members()
+returns trigger as $$
+begin
+  insert into workspace_members (workspace_id, user_id)
+  select new.id, id from profiles;
+  return new;
+end;
+$$ language plpgsql security definer;
+
+drop trigger if exists on_workspace_created_assign_users on workspaces;
+create trigger on_workspace_created_assign_users
+  after insert on workspaces
+  for each row execute procedure handle_new_workspace_members();

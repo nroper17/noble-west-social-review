@@ -258,7 +258,12 @@ function TeamSection() {
                 <p className="team-row-name">{p.full_name ?? p.email}</p>
                 <p className="team-row-email">{p.email}</p>
               </div>
-              {p.id !== self?.id && (
+              {p.id === self?.id ? (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '4px' }}>
+                  <span className="badge badge-internal">{p.role === 'nw_admin' ? 'Admin' : 'Team Member'}</span>
+                  <span className="text-xs text-muted">(You)</span>
+                </div>
+              ) : (
                 <select
                   className="form-input team-role-select"
                   value={p.role}
@@ -269,21 +274,25 @@ function TeamSection() {
                 </select>
               )}
             </div>
-            <div className="team-workspace-assignments">
-              {workspaces.map(ws => {
-                const assigned = (memberMap[p.id] ?? []).includes(ws.id)
-                return (
-                  <button
-                    key={ws.id}
-                    className={`assignment-pill ${assigned ? 'assigned' : ''}`}
-                    onClick={() => toggleAssignment(p.id, ws.id, assigned)}
-                  >
-                    {assigned && <Check size={11} />}
-                    {ws.name}
-                  </button>
-                )
-              })}
-            </div>
+              <div className="team-workspace-assignments">
+                {workspaces.map(ws => {
+                  const isAdminUser = p.role === 'nw_admin'
+                  const assigned = isAdminUser || (memberMap[p.id] ?? []).includes(ws.id)
+                  return (
+                    <button
+                      key={ws.id}
+                      className={`assignment-pill ${assigned ? 'assigned' : ''}`}
+                      onClick={() => !isAdminUser && toggleAssignment(p.id, ws.id, assigned)}
+                      disabled={isAdminUser}
+                      title={isAdminUser ? "Admins automatically have access to all workspaces" : ""}
+                      style={isAdminUser ? { cursor: 'default', opacity: 0.8 } : {}}
+                    >
+                      {assigned && <Check size={11} />}
+                      {ws.name}
+                    </button>
+                  )
+                })}
+              </div>
           </div>
         ))}
       </div>

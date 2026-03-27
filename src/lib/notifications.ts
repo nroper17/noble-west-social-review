@@ -2,6 +2,15 @@ import { supabase } from './supabase'
 
 export type NotificationType = 'mention' | 'status_change' | 'new_asset'
 
+export function escapeHtml(unsafe: string) {
+  return unsafe
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
 export async function sendNotification(
   workspaceId: string,
   type: NotificationType,

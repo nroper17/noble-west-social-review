@@ -4,7 +4,7 @@ import { useAuth } from '../../contexts/AuthContext'
 import type { Comment, CommentThread as ThreadType } from '../../types'
 import { format } from 'date-fns'
 import { Lock, Check, Send, CornerDownRight, Trash2 } from 'lucide-react'
-import { sendNotification } from '../../lib/notifications'
+import { sendNotification, escapeHtml } from '../../lib/notifications'
 import './CommentThread.css'
 
 interface CommentThreadProps {
@@ -93,9 +93,9 @@ export default function CommentThread({ postId, isTeam, workspaceId, magicLinkTo
             'mention', 
             `New Mention: ${authorName}`, 
             `<h2>You were mentioned!</h2>
-             <p><strong>${authorName}</strong> mentioned you in a comment:</p>
+             <p><strong>${escapeHtml(authorName)}</strong> mentioned you in a comment:</p>
              <blockquote style="border-left: 4px solid #E5E2DC; padding-left: 10px; color: #444; margin: 10px 0;">
-               <i>"${fullBody}"</i>
+               <i>"${escapeHtml(fullBody)}"</i>
              </blockquote>
              ${magicLinkToken 
                ? `<br/><a href="${magicUrl}" style="display: inline-block; padding: 10px 20px; background: #14473e; color: white; text-decoration: none; border-radius: 4px;">View in Client Portal</a>` 

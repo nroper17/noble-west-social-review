@@ -17,7 +17,12 @@ serve(async (req) => {
       throw new Error('Missing RESEND_API_KEY environment variable. Secret not configured in Supabase.')
     }
 
-    const { to, subject, html } = await req.json()
+    const reqBody = await req.json()
+    const to = reqBody.to
+    const html = reqBody.html
+    const escapeHtml = (unsafe: string) => unsafe.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    const subject = reqBody.subject ? escapeHtml(reqBody.subject) : undefined;
+    
     console.log(`Received request to send email to: ${JSON.stringify(to)} | Subject: ${subject}`)
 
     if (!to || !subject || !html) {

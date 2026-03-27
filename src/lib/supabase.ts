@@ -11,9 +11,8 @@ if (!supabaseUrl || !supabaseAnonKey) {
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
-    // Use implicit flow (hash-based tokens) for local dev.
-    // This avoids the PKCE code_verifier/localStorage race condition.
-    flowType: 'implicit',
+    // Use PKCE flow for production security
+    flowType: 'pkce',
     detectSessionInUrl: true,
     persistSession: true,
   },

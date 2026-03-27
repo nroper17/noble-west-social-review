@@ -105,7 +105,7 @@
   --transition-slow: 300ms ease;
 
   /* Layout */
-  --nav-height: 60px;
+  --nav-height: 72px;
   --panel-width: 560px;
 }
 
@@ -387,7 +387,7 @@ img {
 }
 
 .top-nav .nw-logo {
-  height: 28px;
+  height: 42px;
   width: auto;
   opacity: 0.95;
 }

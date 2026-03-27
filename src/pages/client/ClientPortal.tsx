@@ -128,7 +128,7 @@ export default function ClientPortalPage() {
       {/* Simple client nav */}
       <header className="client-nav">
         <div className="client-nav-inner">
-          <img src="/nw-logo-white.png" alt="Noble West" className="nw-logo" style={{ filter: 'brightness(0) invert(1)', height: 26 }} />
+          <img src="/nw-logo-white.png" alt="Noble West" className="nw-logo" style={{ filter: 'brightness(0) invert(1)', height: 39 }} />
           <div className="nav-divider" />
           <span className="nav-workspace-name">{workspace?.name}</span>
           <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 12 }}>
